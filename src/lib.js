@@ -39,8 +39,6 @@ const parseNbt = util.promisify(nbt.parse);
 
 const MAX_SOULS = 227;
 let TALISMAN_COUNT;
-const level50SkillExp = 55172425;
-const level60SkillExp = 111672425;
 
 function getMinMax(profiles, min, ...path) {
   let output = null;
@@ -263,7 +261,7 @@ function getSlayerLevel(slayer, slayerName) {
     progress = 1;
   }
 
-  let weight = calcSlayerWeight(slayerName, xp);
+  let weight = 0; // calcSlayerWeight(slayerName, xp);
 
   return { currentLevel, xp, maxLevel, progress, xpForNext, weight };
 }
@@ -928,107 +926,6 @@ function getLevelWithProgress(experience, maxLevel, experienceGroup) {
   }
 
   return Math.min(level, maxLevel);
-}
-
-function calcSkillWeight(skillGroup, level, experience) {
-  if (skillGroup.exponent == undefined || skillGroup.divider == undefined) {
-    return {
-      weight: 0,
-      weight_overflow: 0,
-    };
-  }
-
-  let maxSkillLevelXP = skillGroup.maxLevel == 60 ? level60SkillExp : level50SkillExp;
-
-  let base = Math.pow(level * 10, 0.5 + skillGroup.exponent + level / 100) / 1250;
-  if (experience > maxSkillLevelXP) {
-    base = Math.round(base);
-  }
-
-  if (experience <= maxSkillLevelXP) {
-    return {
-      weight: base,
-      weight_overflow: 0,
-    };
-  }
-
-  return {
-    weight: base,
-    weight_overflow: Math.pow((experience - maxSkillLevelXP) / skillGroup.divider, 0.968),
-  };
-}
-
-function calcSlayerWeight(type, experience) {
-  const slayerWeight = constants.slayerWeight[type];
-
-  if (!experience || experience <= 1000000) {
-    return {
-      weight: !experience ? 0 : experience / slayerWeight.divider, // for some reason experience can be undefined
-      weight_overflow: 0,
-    };
-  }
-
-  let base = 1000000 / slayerWeight.divider;
-  let remaining = experience - 1000000;
-
-  let modifier = slayerWeight.modifier;
-  let overflow = 0;
-
-  while (remaining > 0) {
-    let left = Math.min(remaining, 1000000);
-
-    overflow += Math.pow(left / (slayerWeight.divider * (1.5 + modifier)), 0.942);
-    modifier += slayerWeight.modifier;
-    remaining -= left;
-  }
-
-  return {
-    weight: base,
-    weight_overflow: overflow,
-  };
-}
-
-function calcDungeonsClassLevelWithProgress(experience) {
-  let level = 0;
-
-  for (let toRemove of Object.values(constants.dungeoneering_xp)) {
-    experience -= toRemove;
-    if (experience < 0) {
-      return level + (1 - (experience * -1) / toRemove);
-    }
-    level++;
-  }
-
-  return Math.min(level, 50);
-}
-
-function calcDungeonsWeight(type, level, experience) {
-  if (type.startsWith("master_")) {
-    return {
-      weight: 0,
-      weight_overflow: 0,
-    };
-  }
-
-  let percentageModifier = constants.dungeonsWeight[type];
-  let level50Experience = 569809640;
-
-  let base = Math.pow(level, 4.5) * percentageModifier;
-
-  if (experience <= level50Experience) {
-    return {
-      weight: base,
-      weight_overflow: 0,
-    };
-  }
-
-  let remaining = experience - level50Experience;
-  let splitter = (4 * level50Experience) / base;
-
-  return {
-    weight: Math.floor(base),
-    weight_overflow: Math.pow(remaining / splitter, 0.968),
-  };
 }
 
 module.exports = {
@@ -1766,7 +1663,6 @@ module.exports = {
     let skillLevels;
     let totalSkillXp = 0;
     let average_level = 0;
-    let weight = 0;
 
     // Apply skill bonuses
     if (
@@ -1808,22 +1704,12 @@ module.exports = {
           average_level_no_progress += skillLevels[skill].level;
 
           totalSkillXp += skillLevels[skill].xp;
-
-          let skillWeight = calcSkillWeight(
-            constants.skillWeight[skill],
-            skillLevels[skill].levelWithProgress,
-            skillLevels[skill].xp
-          );
-
-          weight += skillWeight.weight;
-          weight += skillWeight.weight_overflow;
         }
       }
 
       output.average_level = average_level / (Object.keys(skillLevels).length - 2);
       output.average_level_no_progress = average_level_no_progress / (Object.keys(skillLevels).length - 2);
       output.total_skill_xp = totalSkillXp;
-      output.skillWeight = weight;
 
       output.levels = Object.assign({}, skillLevels);
     } else {
@@ -1858,7 +1744,6 @@ module.exports = {
       output.average_level = average_level / skillsAmount;
       output.average_level_no_progress = output.average_level;
       output.total_skill_xp = totalSkillXp;
-      output.skillWeight = 0;
     }
 
     const multi = redisClient.pipeline();
@@ -1929,7 +1814,7 @@ module.exports = {
       farming: constants.default_skill_caps.farming + (userProfile.jacob2?.perks?.farming_level_cap || 0),
     };
 
-    const { levels, average_level, average_level_no_progress, total_skill_xp, average_level_rank, skillWeight } =
+    const { levels, average_level, average_level_no_progress, total_skill_xp, average_level_rank } =
       await module.exports.getLevels(userProfile, hypixelProfile, levelCaps);
 
     output.levels = levels;
@@ -1995,9 +1880,6 @@ module.exports = {
                 (output.slayer_coins_spent[slayerName] || 0) + slayer[property] * constants.slayer_cost[tier];
             }
           }
-
-          slayerWeight += slayers[slayerName].level.weight.weight;
-          slayerWeight += slayers[slayerName].level.weight.weight_overflow;
         }
 
         for (const slayerName in output.slayer_coins_spent) {
@@ -2916,6 +2798,7 @@ module.exports = {
 
     */
 
+    /*
     output.dungeonsWeight = output.dungeons.dungeonsWeight ?? -1;
     output.skillWeight = skillWeight ?? -1;
     output.slayerWeight = slayerWeight ?? -1;
@@ -2923,6 +2806,11 @@ module.exports = {
     output.weight = [output.dungeonsWeight, skillWeight, slayerWeight]
       .filter((x) => x >= 0)
       .reduce((total, value) => total + value);
+    */
+
+    output.weight = {
+      senither: require("./weight/senitherWeight").calculateWeight(output),
+    };
 
     console.debug(`${options.debugId}: getStats returned. (${new Date().getTime() - timeStarted}ms)`);
     return output;
@@ -3378,11 +3266,6 @@ module.exports = {
             : `floor_${highest_floor}`,
         floors: floors,
       };
-
-      let dungeonLevelWithProgress = calcDungeonsClassLevelWithProgress(dungeon.experience);
-      let dungeonsWeight = calcDungeonsWeight(type, dungeonLevelWithProgress, dungeon.experience);
-      output.dungeonsWeight += dungeonsWeight.weight;
-      output.dungeonsWeight += dungeonsWeight.weight_overflow;
     }
 
     // Classes
@@ -3405,14 +3288,10 @@ module.exports = {
       if (data.experience > 0) {
         used_classes = true;
       }
+
       if (className == current_class) {
         output.classes[className].current = true;
       }
-
-      let levelWithProgress = calcDungeonsClassLevelWithProgress(data.experience);
-      let classWeight = calcDungeonsWeight(className, levelWithProgress, data.experience);
-      output.dungeonsWeight += classWeight.weight;
-      output.dungeonsWeight += classWeight.weight_overflow;
     }
 
     output.used_classes = used_classes;
