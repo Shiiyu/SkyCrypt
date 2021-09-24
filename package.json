@@ -66,7 +66,7 @@
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.31",
     "mongo-sanitize": "^1.1.0",
-    "mongodb": "^4.1.1",
+    "mongodb": "^4.1.2",
     "prismarine-nbt": "^1.6.0",
     "progress": "^2.0.3",
     "relaxed-json": "^1.0.3",
