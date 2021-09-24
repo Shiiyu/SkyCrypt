@@ -26,7 +26,7 @@ server {
         proxy_set_header Host $host;
         proxy_pass http://sky;
 
-        limit_conn limit_main 10;
+        limit_conn limit_main 6;
     }
 
     location /api {
@@ -66,7 +66,7 @@ server {
         proxy_set_header Host $host;
         proxy_pass http://sky;
 
-        limit_conn limit_main 10;
+        limit_conn limit_main 6;
     }
 
     client_body_timeout 5s;
