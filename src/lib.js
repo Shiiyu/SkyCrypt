@@ -1598,81 +1598,70 @@ export const getItems = async (
     output.armor_set_rarity = armorPiece.rarity;
   }
 
+  // Full armor set (4 pieces)
   if (armor.filter((a) => Object.keys(a).length > 2).length == 4) {
-    let output_name = "";
+    let output_name;
     let reforgeName;
 
+    // Getting armor_name
     armor.forEach((armorPiece) => {
-      let name = armorPiece.display_name.replace(/✪/g, "").trim();
+      let name = armorPiece.display_name;
 
+      // Removing stars
+      name = name.replace(/✪|⍟/g, "").trim();
+
+      // Removing skin
+      name = name.replace(/✦/g, "").trim();
+
+      // Removing modifier
       if (armorPiece.tag?.ExtraAttributes?.modifier != undefined) {
         name = name.split(" ").slice(1).join(" ");
+      }
+
+      // Converting armor_name to generic name
+      // Ex: Superior Dragon Helmet -> Superior Dragon Armor
+      if (/^Armor .*? (Helmet|Chestplate|Leggings|Boots)$/g.test(name)) {
+        // name starts with Armor and ends with piece name, remove piece name
+        name = name.replace(/(Helmet|Chestplate|Leggings|Boots)/g, "").trim();
+      } else {
+        // removing old 'Armor' and replacing the piece name with 'Armor'
+        name = name.replace("Armor", "").replace("  ", " ").trim();
+        name = name.replace(/(Helmet|Chestplate|Leggings|Boots)/g, "Armor").trim();
       }
 
       armorPiece.armor_name = name;
     });
 
-    if (armor.filter((a) => a.tag?.ExtraAttributes?.modifier == armor[0].tag.ExtraAttributes.modifier).length == 4) {
+    // Getting full armor reforge (same reforge on all pieces)
+    if (
+      armor.filter(
+        (a) =>
+          a.tag?.ExtraAttributes?.modifier != undefined &&
+          a.tag?.ExtraAttributes?.modifier == armor[0].tag.ExtraAttributes.modifier
+      ).length == 4
+    ) {
       reforgeName = armor[0].display_name.split(" ")[0];
     }
 
-    const isMonsterSet =
-      armor.filter((a) =>
-        ["SKELETON_HELMET", "GUARDIAN_CHESTPLATE", "CREEPER_LEGGINGS", "SPIDER_BOOTS", "TARANTULA_BOOTS"].includes(
-          getId(a)
-        )
-      ).length == 4;
-
-    const isPerfectSet = armor.filter((a) => getId(a).startsWith("PERFECT_")).length == 4;
-
-    const isSpongeSet = armor.filter((a) => getId(a).startsWith("SPONGE_")).length == 4;
-
-    if (
-      armor.filter((a) => a.armor_name.split(" ")[0] == armor[0].armor_name.split(" ")[0]).length == 4 ||
-      isMonsterSet
-    ) {
-      let base_name = armor[0].armor_name.split(" ");
-      base_name.pop();
-
-      output_name += base_name.join(" ");
-
-      if (!output_name.endsWith("Armor") && !output_name.startsWith("Armor")) {
-        output_name += " Armor";
-      }
-
-      output.armor_set = output_name;
-      output.armor_set_rarity = armor[0].rarity;
-
-      if (isMonsterSet) {
-        output.armor_set_rarity = "rare";
-
-        if (getId(armor[0]) == "SPIDER_BOOTS") {
-          output.armor_set = "Monster Hunter Armor";
-        }
-
-        if (getId(armor[0]) == "TARANTULA_BOOTS") {
-          output.armor_set = "Monster Raider Armor";
-        }
-      }
-
-      if (isPerfectSet) {
-        const sameTier = armor.filter((a) => getId(a).split("_").pop() == getId(armor[0]).split("_").pop()).length == 4;
-
-        if (sameTier) {
-          output.armor_set = "Perfect Armor - Tier " + getId(armor[0]).split("_").pop();
-        } else {
-          output.armor_set = "Perfect Armor";
-        }
-      }
-
-      if (isSpongeSet) {
-        output.armor_set = "Sponge Armor";
-      }
-
-      if (reforgeName) {
-        output.armor_set = reforgeName + " " + output.armor_set;
-      }
+    // Handling normal sets of armor
+    if (armor.filter((a) => a.armor_name == armor[0].armor_name).length == 4) {
+      output_name = armor[0].armor_name;
     }
+
+    // Handling special sets of armor (where pieces aren't named the same)
+    constants.special_sets.forEach((set) => {
+      if (armor.filter((a) => set.pieces.includes(getId(a))).length == 4) {
+        output_name = set.name;
+      }
+    });
+
+    // Finalizing the output
+    if (reforgeName && output_name) {
+      output_name = reforgeName + " " + output_name;
+    }
+
+    output.armor_set = output_name;
+    output.armor_set_rarity = constants.rarities[Math.max(...armor.map((a) => helper.rarityNameToInt(a.rarity)))];
   }
 
   console.debug(`${options.debugId}: getItems returned. (${new Date().getTime() - timeStarted}ms)`);

@@ -1,3 +1,4 @@
+export * from "./constants/armor.js";
 export * from "./constants/bonuses.js";
 export * from "./constants/collections.js";
 export * from "./constants/dungeons.js";
