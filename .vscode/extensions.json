@@ -3,6 +3,7 @@
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "digitalbrainstem.javascript-ejs-support",
-    "bierner.comment-tagged-templates"
+    "bierner.comment-tagged-templates",
+    "runem.lit-plugin"
   ]
 }

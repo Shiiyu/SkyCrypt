@@ -45,6 +45,7 @@ if your not sure what code editor to use VS-Code is a great option. Here are som
 - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [EJS language support](https://marketplace.visualstudio.com/items?itemName=digitalbrainstem.javascript-ejs-support)
 - [Comment tagged templates](https://marketplace.visualstudio.com/items?itemName=bierner.comment-tagged-templates)
+- [lit-plugin](https://marketplace.visualstudio.com/items?itemName=runem.lit-plugin)
 
 #### Recommended Settings
 

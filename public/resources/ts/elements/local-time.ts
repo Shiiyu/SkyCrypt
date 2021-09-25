@@ -23,8 +23,6 @@ export class LocalTimeElement extends HTMLElement {
       if (typeof newValue === "number" || typeof newValue === "string") {
         const date = new Date(newValue);
         this.timeElement.setAttribute("datetime", date.toISOString());
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore because typescript doesn't support dateStyle and timeStyle yet https://github.com/microsoft/TypeScript/issues/44632
         this.timeElement.innerHTML = date.toLocaleString(undefined, { dateStyle: "long", timeStyle: "short" });
       } else {
         console.error("local-time must have a timestamp");

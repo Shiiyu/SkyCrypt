@@ -18,9 +18,10 @@ const config = {
     "public/resources/ts/browser-compat-check.ts",
     "public/resources/ts/common-defer.ts",
     "public/resources/ts/common.ts",
-    "public/resources/ts/localTimeElement.ts",
     "public/resources/ts/stats-defer.ts",
     "public/resources/ts/themes.ts",
+    "public/resources/ts/elements/local-time.ts",
+    "public/resources/ts/elements/rich-item.ts",
   ],
   output: {
     dir: "public/resources/js",

@@ -2191,8 +2191,7 @@ a.additional-player-stat:hover {
   }
 }
 
-.inventory-item,
-.piece {
+.rich-item {
   @media (hover: hover) {
     &::after {
       content: "";
@@ -2210,6 +2209,17 @@ a.additional-player-stat:hover {
     &:hover::after {
       background-color: rgba(255, 255, 255, 0.2);
     }
+  }
+
+  .item-count {
+    position: absolute;
+    z-index: 16;
+    bottom: calc(var(--inventory-width) * 0.0025);
+    right: calc(var(--inventory-width) * 0.0025);
+    font-size: calc(var(--inventory-width) * 0.03333);
+    color: white;
+    text-shadow: 0.1em 0.1em 0.1em black;
+    font-weight: 600;
   }
 }
 
@@ -2690,7 +2700,7 @@ a.additional-player-stat:hover {
   }
 }
 
-.inventory-view {
+inventory-view {
   display: grid;
   place-content: center center;
   --inventory-width: clamp(300px, calc(100vw - 40px), 700px);
@@ -2706,23 +2716,6 @@ a.additional-player-stat:hover {
 
     @supports not (aspect-ratio: 1) {
       padding-bottom: 100%;
-    }
-
-    .inventory-item {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-
-      .item-count {
-        position: absolute;
-        z-index: 16;
-        bottom: calc(var(--inventory-width) * 0.0025);
-        right: calc(var(--inventory-width) * 0.0025);
-        font-size: calc(var(--inventory-width) * 0.03333);
-        color: white;
-        text-shadow: 0.1em 0.1em 0.1em black;
-        font-weight: 600;
-      }
     }
   }
 
@@ -2758,28 +2751,30 @@ a.additional-player-stat:hover {
   left: 0;
   right: 0;
   bottom: -10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   opacity: 0;
   background-color: rgba(var(--background-rgb), 0.4);
   color: var(--text-hex);
   transition: opacity 0.2s;
   cursor: pointer;
   z-index: 1000;
-  font-size: 22px;
   font-weight: 500;
   text-shadow: 0px 0px 5px rgba(var(--background-rgb), 0.6);
 
-  span:nth-child(3) {
-    font-size: 11.5px;
+  * {
+    margin: 0;
   }
 
-  div {
-    left: 0;
-    right: 0;
-    text-align: center;
-    vertical-align: middle;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+  span {
+    font-size: 22px;
+  }
+
+  small {
+    font-size: 11.5px;
   }
 }
 

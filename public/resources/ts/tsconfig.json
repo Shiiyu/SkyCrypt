@@ -4,9 +4,11 @@
     "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "target": "es2020",
     "lib": ["ES2020", "dom", "dom.iterable", "ESNext.String"],
-    "outDir": "../js"
+    "outDir": "../js",
+    "plugins": [{ "name": "ts-lit-plugin", "strict": true }]
   },
   "include": ["."]
 }

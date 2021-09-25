@@ -2,6 +2,8 @@ import { setCookie } from "./common-defer";
 import { SkinViewer, createOrbitControls } from "skinview3d";
 import tippy from "tippy.js";
 
+import("./elements/inventory-view");
+
 const favoriteElement = document.querySelector(".favorite") as HTMLButtonElement;
 
 if ("share" in navigator) {
@@ -117,16 +119,28 @@ tippy(".interactive-tooltip", {
   },
 });
 
-const all_items = items.armor.concat(
-  items.inventory,
-  items.enderchest,
-  items.talisman_bag,
-  items.fishing_bag,
-  items.quiver,
-  items.potion_bag,
-  items.personal_vault,
-  items.wardrobe_inventory,
-  items.storage
+export const allItems = new Map(
+  [
+    items.armor,
+    items.inventory,
+    items.enderchest,
+    items.talisman_bag,
+    items.fishing_bag,
+    items.quiver,
+    items.potion_bag,
+    items.personal_vault,
+    items.wardrobe_inventory,
+    items.storage,
+  ]
+    .flat()
+    .flatMap((item) => {
+      if ("containsItems" in item) {
+        return [item, ...item.containsItems];
+      } else {
+        return item;
+      }
+    })
+    .map((item) => [item.itemId, item])
 );
 
 const dimmer = document.querySelector("#dimmer") as HTMLElement;
@@ -146,7 +160,7 @@ if (calculated.profile.cute_name == "Deleted") {
 
 history.replaceState({}, document.title, url.href);
 
-function isEnchanted(item: Item) {
+export function isEnchanted(item: Item): boolean {
   // heads
   if ([397].includes(item.id)) {
     return false;
@@ -221,130 +235,66 @@ function renderLore(text: string) {
   return output;
 }
 
-let currentBackpack: Backpack;
-
-function renderInventory(inventory: ItemSlot[], type: string) {
-  const visibleInventory = document.querySelector(".stat-inventory .inventory-view");
-
-  if (visibleInventory) {
-    document.querySelector("#inventory_container")?.removeChild(visibleInventory);
-  }
-
-  const inventoryView = document.createElement("div");
-  inventoryView.className = "inventory-view processed";
-  inventoryView.setAttribute("data-inventory-type", type);
-
-  let pagesize = 5 * 9;
-
-  if (type === "inventory") {
-    inventory = inventory.slice(9, 36).concat(inventory.slice(0, 9));
-    pagesize = 3 * 9;
-  } else if (type === "backpack") {
-    pagesize = 6 * 9;
-  }
-
-  inventory.forEach((item: Item | ItemSlot, index) => {
-    const inventorySlot = document.createElement("div");
-    inventorySlot.className = "inventory-slot";
-
-    if ("id" in item) {
-      const inventoryItemIcon = document.createElement("div");
-      const inventoryItemCount = document.createElement("div");
-
-      const idClass = `icon-${item.id}_${item.Damage}` + " " + (item.Damage != 0 ? `icon-${item.id}_0` : "");
-      inventoryItemIcon.className = "piece-icon item-icon " + idClass;
-
-      if ("texture_path" in item) {
-        inventoryItemIcon.className += " custom-icon";
-        inventoryItemIcon.style.backgroundImage = 'url("' + item.texture_path + '")';
-      }
-
-      if (isEnchanted(item)) {
-        inventoryItemIcon.classList.add("is-enchanted");
-      }
-
-      inventoryItemCount.className = "item-count";
-      inventoryItemCount.innerHTML = item.Count.toString();
-
-      const inventoryItem = document.createElement("div");
-
-      inventoryItem.className = "rich-item inventory-item";
-
-      if (type === "backpack") {
-        inventoryItem.setAttribute("data-backpack-item-index", index.toString());
-      } else {
-        inventoryItem.setAttribute("data-item-index", item.item_index.toString());
-      }
-
-      inventoryItem.appendChild(inventoryItemIcon);
-
-      if (item.Count != 1) {
-        inventoryItem.appendChild(inventoryItemCount);
-      }
-
-      inventorySlot.appendChild(inventoryItem);
-
-      bindLoreEvents(inventoryItem);
-    }
-
-    if (index % pagesize === 0 && index !== 0) {
-      inventoryView.appendChild(document.createElement("hr"));
-    }
-
-    inventoryView.appendChild(inventorySlot);
-  });
-
-  inventoryContainer.appendChild(inventoryView);
-
-  const rect = (document.querySelector("#inventory_container") as HTMLElement).getBoundingClientRect();
-
-  if (rect.top > 100 && rect.bottom > window.innerHeight) {
-    let top;
-    if (rect.height > window.innerHeight - 100) {
-      top = rect.top - 100;
-    } else {
-      top = rect.bottom - window.innerHeight;
-    }
-    window.scrollBy({ top, behavior: "smooth" });
-    scrollMemory.isSmoothScrolling = true;
-  }
+export function isSlotItem(item: ItemSlot): item is Item {
+  return "id" in item;
 }
 
-function isBackpack(item: DisplayItem): item is Backpack {
+function switchInventory(type: string, backpack?: Backpack) {
+  backpack;
+  const inventoryView = document.querySelector<HTMLElement>(".stat-inventory inventory-view");
+
+  if (!inventoryView) {
+    return;
+  }
+
+  inventoryView.setAttribute("inventory-type", type);
+
+  if (type === "backpack" && backpack) {
+    inventoryView.setAttribute("backpack-id", backpack.itemId);
+  }
+
+  setTimeout(() => {
+    const rect = (document.querySelector("#inventory_container") as HTMLElement).getBoundingClientRect();
+
+    if (rect.top > 100 && rect.bottom > window.innerHeight) {
+      let top;
+      if (rect.height > window.innerHeight - 100) {
+        top = rect.top - 100;
+      } else {
+        top = rect.bottom - window.innerHeight;
+      }
+      window.scrollBy({ top, behavior: "smooth" });
+      scrollMemory.isSmoothScrolling = true;
+    }
+  });
+}
+
+export function isItem(item: ItemSlot | DisplayItem): item is Item {
+  return "Count" in item && "Damage" in item && "id" in item;
+}
+
+export function isBackpack(item: DisplayItem): item is Backpack {
   return "containsItems" in item;
 }
 
-function showBackpack(item: Backpack) {
+export function showBackpack(item: Backpack): void {
   const activeInventory = document.querySelector(".inventory-tab.active-inventory");
 
   if (activeInventory) {
     activeInventory.classList.remove("active-inventory");
   }
 
-  renderInventory(item.containsItems, "backpack");
+  switchInventory("backpack", item);
 
-  currentBackpack = item;
+  closeLore();
 }
 
 function fillLore(element: HTMLElement) {
   let item: DisplayItem | Item | Pet | undefined = undefined;
 
-  if (element.hasAttribute("data-backpack-index")) {
-    const backpack = all_items.find(
-      (a) => a.item_index == parseInt(element.getAttribute("data-backpack-index") as string)
-    ) as Backpack | undefined;
-
-    if (backpack == undefined) {
-      return;
-    }
-
-    item = backpack?.containsItems?.find(
-      (a) => a.item_index == parseInt(element.getAttribute("data-item-index") as string)
-    );
-  } else if (element.hasAttribute("data-item-index")) {
-    item = all_items.find((a) => a.item_index == parseInt(element.getAttribute("data-item-index") as string)) as Item;
-  } else if (element.hasAttribute("data-backpack-item-index")) {
-    item = currentBackpack.containsItems[parseInt(element.getAttribute("data-backpack-item-index") as string)];
+  if (element.hasAttribute("data-item-id")) {
+    const itemId = element.getAttribute("data-item-id") as string;
+    item = allItems.get(itemId) as Item;
   } else if (element.hasAttribute("data-pet-index")) {
     item = calculated.pets[parseInt(element.getAttribute("data-pet-index") as string)];
   } else if (element.hasAttribute("data-missing-pet-index")) {
@@ -419,65 +369,11 @@ function fillLore(element: HTMLElement) {
     itemLore.appendChild(packContent);
   }
 
-  backpackContents.innerHTML = "";
-
   if (isBackpack(item)) {
     backpackContents.classList.add("contains-backpack");
 
-    item.containsItems.forEach((backpackItem) => {
-      const inventorySlot = document.createElement("div");
-      inventorySlot.className = "inventory-slot";
-
-      if (backpackItem.id) {
-        const inventoryItemIcon = document.createElement("div");
-        const inventoryItemCount = document.createElement("div");
-
-        const enchantedClass = isEnchanted(backpackItem) ? "is-enchanted" : "";
-
-        inventoryItemIcon.className =
-          "piece-icon item-icon " + enchantedClass + " icon-" + backpackItem.id + "_" + backpackItem.Damage;
-
-        if (backpackItem.texture_path) {
-          inventoryItemIcon.className += " custom-icon";
-          inventoryItemIcon.style.backgroundImage = 'url("' + backpackItem.texture_path + '")';
-        }
-
-        inventoryItemCount.className = "item-count";
-        inventoryItemCount.innerHTML = backpackItem.Count.toString();
-
-        const inventoryItem = document.createElement("div");
-
-        inventoryItem.className = "inventory-item";
-
-        inventoryItem.appendChild(inventoryItemIcon);
-
-        if (backpackItem.Count > 1) {
-          inventoryItem.appendChild(inventoryItemCount);
-        }
-
-        inventorySlot.appendChild(inventoryItem);
-      }
-
-      backpackContents.appendChild(inventorySlot);
-
-      backpackContents.appendChild(document.createTextNode(" "));
-    });
-
-    const viewBackpack = document.createElement("div");
-    viewBackpack.classList.add("view-backpack");
-
-    const viewBackpackText = document.createElement("div");
-    viewBackpackText.innerHTML =
-      "<span>View Backpack</span><br><span>(Right click backpack to immediately open)</span>";
-
-    viewBackpack.appendChild(viewBackpackText);
-
-    viewBackpack.addEventListener("click", () => {
-      showBackpack(item as Backpack);
-      closeLore();
-    });
-
-    backpackContents.appendChild(viewBackpack);
+    backpackContents.setAttribute("backpack-id", item.itemId);
+    backpackContents.setAttribute("inventory-type", "backpack");
   } else {
     backpackContents.classList.remove("contains-backpack");
   }
@@ -572,23 +468,8 @@ function flashForUpdate(element: HTMLElement) {
 for (const element of document.querySelectorAll<HTMLElement>(".stat-weapons .select-weapon")) {
   const parent = element.parentElement as HTMLElement;
   const itemId = parent.getAttribute("data-item-id") as string;
-  let filterItems;
 
-  if (parent.hasAttribute("data-backpack-index")) {
-    const backpack = all_items.find((a) => a.item_index == Number(parent.getAttribute("data-backpack-index"))) as
-      | Backpack
-      | undefined;
-
-    if (backpack == undefined) {
-      break;
-    }
-
-    filterItems = backpack.containsItems;
-  } else {
-    filterItems = items.weapons.filter((a) => !("backpackIndex" in a));
-  }
-
-  const item = filterItems.find((a) => a.itemId == itemId) as Item;
+  const item = allItems.get(itemId) as Item;
 
   const weaponStats = calculated.weapon_stats[itemId];
   let stats;
@@ -635,23 +516,8 @@ for (const element of document.querySelectorAll<HTMLElement>(".stat-weapons .sel
 for (const element of document.querySelectorAll<HTMLElement>(".stat-fishing .select-rod")) {
   const parent = element.parentElement as HTMLElement;
   const itemId = parent.getAttribute("data-item-id") as string;
-  let filterItems;
 
-  if (parent.hasAttribute("data-backpack-index")) {
-    const backpack = all_items.find((a) => a.item_index == Number(parent.getAttribute("data-backpack-index"))) as
-      | Backpack
-      | undefined;
-
-    if (backpack == undefined) {
-      break;
-    }
-
-    filterItems = backpack.containsItems;
-  } else {
-    filterItems = items.rods.filter((a) => !("backpackIndex" in a));
-  }
-
-  const item = filterItems.find((a) => a.itemId == itemId) as Item;
+  const item = allItems.get(itemId) as Item;
 
   //TODO find out why weapon stats is used in fishing rods section
   const weaponStats = calculated.weapon_stats[itemId];
@@ -721,7 +587,7 @@ for (const element of document.querySelectorAll(".inventory-tab")) {
 
     element.classList.add("active-inventory");
 
-    renderInventory(items[type], type);
+    switchInventory(type);
   });
 }
 
@@ -732,73 +598,60 @@ const itemNameContent = itemName.querySelector("span") as HTMLSpanElement;
 const itemLore = statsContent.querySelector(".item-lore") as HTMLElement;
 const backpackContents = statsContent.querySelector(".backpack-contents") as HTMLElement;
 
-function bindLoreEvents(element: HTMLElement) {
-  element.addEventListener("mouseenter", () => {
-    fillLore(element);
+export function mouseenterLoreListener(event: MouseEvent): void {
+  const element = event.target as HTMLElement;
 
-    statsContent.classList.add("show-stats");
-  });
+  fillLore(element);
 
-  element.addEventListener("mouseleave", () => {
-    statsContent.classList.remove("show-stats");
-    element.classList.remove("piece-hovered");
-  });
+  statsContent.classList.add("show-stats");
+}
 
-  element.addEventListener("mousemove", (event) => {
-    if (statsContent.classList.contains("sticky-stats")) {
-      return;
-    }
+export function mouseleaveLoreListener(): void {
+  statsContent.classList.remove("show-stats");
+}
 
-    const maxTop = window.innerHeight - statsContent.offsetHeight - 20;
-    const rect = element.getBoundingClientRect();
-
-    let left = rect.x - statsContent.offsetWidth - 10;
-
-    if (left < 10) {
-      left = rect.x + 90;
-    }
-
-    if (rect.x) {
-      statsContent.style.left = left + "px";
-    }
-
-    const top = Math.max(70, Math.min(maxTop, event.clientY - statsContent.offsetHeight / 2));
-
-    statsContent.style.top = top + "px";
-  });
-
-  const itemIndex = Number(element.getAttribute("data-item-index"));
-  const item = all_items.find((a) => a.item_index == itemIndex);
-
-  if (item && "containsItems" in item) {
-    element.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
-
-      showBackpack(item);
-      closeLore();
-    });
+export function mousemoveLoreListener(event: MouseEvent): void {
+  const element = event.target as HTMLElement;
+  if (statsContent.classList.contains("sticky-stats")) {
+    return;
   }
 
-  element.addEventListener("click", (event) => {
-    if (event.ctrlKey && item && "containsItems" in item) {
-      showBackpack(item);
-      closeLore();
-    } else {
-      if (statsContent.classList.contains("sticky-stats")) {
-        closeLore();
-      } else {
-        showLore(element, false);
+  const maxTop = window.innerHeight - statsContent.offsetHeight - 20;
+  const rect = element.getBoundingClientRect();
 
-        if (Number(statsContent.getAttribute("data-item-index")) != itemIndex) {
-          fillLore(element);
-        }
-      }
-    }
-  });
+  let left = rect.x - statsContent.offsetWidth - 10;
+
+  if (left < 10) {
+    left = rect.x + 90;
+  }
+
+  if (rect.x) {
+    statsContent.style.left = left + "px";
+  }
+
+  const top = Math.max(70, Math.min(maxTop, event.clientY - statsContent.offsetHeight / 2));
+
+  statsContent.style.top = top + "px";
+}
+
+export function clickLoreListener(event: MouseEvent): void {
+  const element = event.target as HTMLElement;
+
+  if (statsContent.classList.contains("sticky-stats")) {
+    closeLore();
+  } else {
+    showLore(element, false);
+  }
 }
 
 for (const element of document.querySelectorAll<HTMLElement>(".rich-item")) {
-  bindLoreEvents(element);
+  element.addEventListener("mouseenter", mouseenterLoreListener);
+
+  element.addEventListener("mouseleave", mouseleaveLoreListener);
+
+  element.addEventListener("mousemove", mousemoveLoreListener);
+
+  element.addEventListener("click", clickLoreListener);
 }
 
 const enableApiPlayer = document.querySelector("#enable_api") as HTMLVideoElement;
