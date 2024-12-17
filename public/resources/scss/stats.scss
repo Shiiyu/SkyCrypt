@@ -388,7 +388,8 @@
       }
     }
 
-    .author {
+    .author,
+    .description {
       color: rgba(var(--text-rgb), 0.6);
 
       span {

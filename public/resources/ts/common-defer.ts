@@ -109,12 +109,8 @@ const expanders = document.querySelectorAll(".expander");
 for (const expander of expanders) {
   expander.addEventListener("click", () => {
     switch (expander.id) {
-      case "packs-button":
-        import("./elements/pack-list");
-        break;
-
-      case "themes-button":
-        import("./elements/theme-list");
+      case "settings-button":
+        import("./elements/settings");
         break;
     }
 
