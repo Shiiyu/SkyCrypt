@@ -247,17 +247,24 @@ function fillLore(element: HTMLElement) {
 
   const itemNameString = ((item as Item).tag?.display?.Name ?? item.display_name ?? "???") as string;
   const colorCode = itemNameString.match(/^§([0-9a-fklmnor])/i);
-  if (colorCode && colorCode[1]) {
+
+  itemName.className = `item-name piece-${item.rarity || "common"}-bg nice-colors-dark`;
+  if (item.color !== undefined) {
+    itemName.style.backgroundColor = `#${item.color}`;
+  } else if (colorCode && colorCode[1]) {
     itemName.style.backgroundColor = `var(--§${colorCode[1]})`;
   } else {
     itemName.style.backgroundColor = `var(--§${(RARITY_COLORS as RarityColors)[item.rarity || "common"]})`;
   }
 
-  itemName.className = `item-name piece-${item.rarity || "common"}-bg nice-colors-dark`;
-  const itemNameHtml = renderLore((item as Item).tag?.display?.Name ?? item.display_name ?? "???");
+  const itemNameHtml = renderLore(itemNameString);
   const isMulticolor = (itemNameHtml.match(/<\/span>/g) || []).length > 1;
-  itemNameContent.dataset.multicolor = String(isMulticolor);
+
   itemNameContent.innerHTML = isMulticolor ? itemNameHtml : itemNameString.replace(/§([0-9a-fklmnor])/gi, "") ?? "???";
+
+  statsContent.style.setProperty("--scrollbar-color", itemName.style.backgroundColor);
+
+  itemNameContent.dataset.multicolor = String(isMulticolor);
 
   if (element.hasAttribute("data-pet-index")) {
     itemNameContent.dataset.multicolor = "false";

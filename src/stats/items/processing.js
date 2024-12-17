@@ -228,6 +228,12 @@ export async function processItems(base64, source, customTextures = false, packs
       item.extra.skin = `PET_SKIN_${item.tag.ExtraAttributes.petInfo.skin}`;
     }
 
+    if (item.tag?.display?.color) {
+      const hex = item.tag.display.color.toString(16).padStart(6, "0");
+
+      item.color = hex.toUpperCase();
+    }
+
     // Set custom texture for colored leather armor
     if (typeof item.id === "number" && item.id >= 298 && item.id <= 301) {
       const color = item.tag?.display?.color?.toString(16).padStart(6, "0") ?? "955e3b";

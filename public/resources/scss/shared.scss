@@ -54,6 +54,9 @@
   /* Normal Background */
   --bg: url(/resources/img/bg.webp);
 
+  /* Scrollbar color */
+  --scrollbar-color: #0bca51;
+
   color-scheme: dark;
 
   &.light {
@@ -1047,7 +1050,7 @@ body {
 
   *::-webkit-scrollbar-thumb {
     border-radius: 12px;
-    background-color: var(--icon-hex);
+    background-color: var(--scrollbar-color);
   }
 
   body::-webkit-scrollbar {

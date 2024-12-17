@@ -1357,7 +1357,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-admin-bg,
-.style-scrollbar .piece-admin-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-admin-bg {
   background-color: var(--§4);
 }
 .piece-admin-bg + .item-lore {
@@ -1368,7 +1368,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-supreme-bg,
-.style-scrollbar .piece-supreme-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-supreme-bg {
   background-color: var(--§4);
 }
 .piece-supreme-bg + .item-lore {
@@ -1379,7 +1379,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-very_special-bg,
-.style-scrollbar .piece-very_special-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-very_special-bg {
   background-color: var(--§c);
 }
 .piece-very_special-bg + .item-lore {
@@ -1390,7 +1390,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-special-bg,
-.style-scrollbar .piece-special-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-special-bg {
   background-color: var(--§c);
 }
 .piece-special-bg + .item-lore {
@@ -1401,7 +1401,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-divine-bg,
-.style-scrollbar .piece-divine-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-divine-bg {
   background-color: var(--§b);
 }
 .piece-divine-bg + .item-lore {
@@ -1412,7 +1412,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-mythic-bg,
-.style-scrollbar .piece-mythic-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-mythic-bg {
   background-color: var(--§d);
 }
 .piece-mythic-bg + .item-lore {
@@ -1423,7 +1423,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-legendary-bg,
-.style-scrollbar .piece-legendary-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-legendary-bg {
   background-color: var(--§6);
 }
 .piece-legendary-bg + .item-lore {
@@ -1434,7 +1434,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-epic-bg,
-.style-scrollbar .piece-epic-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-epic-bg {
   background-color: var(--§5);
 }
 .piece-epic-bg + .item-lore {
@@ -1445,7 +1445,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-rare-bg,
-.style-scrollbar .piece-rare-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-rare-bg {
   background-color: var(--§9);
 }
 .piece-rare-bg + .item-lore {
@@ -1456,7 +1456,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-uncommon-bg,
-.style-scrollbar .piece-uncommon-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-uncommon-bg {
   background-color: var(--§a);
 }
 .piece-uncommon-bg + .item-lore {
@@ -1467,7 +1467,7 @@ a.additional-player-stat:hover {
 }
 
 .piece-common-bg,
-.style-scrollbar .piece-common-bg + .item-lore::-webkit-scrollbar-thumb {
+.style-scrollbar .piece-common-bg {
   background-color: var(--§f);
 }
 .piece-common-bg + .item-lore {
