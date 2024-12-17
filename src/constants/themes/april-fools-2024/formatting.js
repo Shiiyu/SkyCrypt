@@ -23,7 +23,7 @@ const mapThToF = (input) => input.replace(/[Tt]h(?![Ee])/g, "f").replace(/TH(?!E
 const mapLeToWal = (input) => input.replace(/le$/g, "wal");
 const mapVeToWe = (input) => input.replace(/ve/g, "we").replace(/Ve/g, "We");
 const mapRyToWwy = (input) => input.replace(/ry/g, "wwy");
-const mapROrLToW = (input) => input.replace(/(?:r|l)/g, "w").replace(/(?:R|L)/g, "W");
+const mapROrLToW = (input) => input.replace(/(?<!§)[rl]/g, "w").replace(/[RL]/g, "W");
 
 export const UWU_MAPPING_ARRAY = [
   // mapBracketsToStarTrails,

@@ -210,7 +210,7 @@ const nodeNames = {
   mining_fortune_2: "Fortunate Mineman",
   // HOTM 6
   anomalous_desire: "Anomalous Desire",
-  blockhead: "Block Head",
+  blockhead: "Blockhead",
   subterranean_fisher: "Subterranean Fisher",
   keep_it_cool: "Keep It Cool",
   lonesome_miner: "Lonesome Miner",
@@ -1084,7 +1084,7 @@ class AnomalousDesire extends Node {
   }
 }
 
-class BlockHead extends Node {
+class Blockhead extends Node {
   constructor(data) {
     super(data);
     this.id = "blockhead";
@@ -1464,7 +1464,7 @@ class Mole extends Node {
   }
 
   perk(level) {
-    const val = round(50 + (this.level - 1) * (350 / 199), 2);
+    const val = round(50 + (level - 1) * (350 / 199), 2);
     return [`§7Grants §e+${val} ${SYMBOLS.mining_spread} Mining Spread §7when mining Hard Stone.`];
   }
 }
@@ -1591,7 +1591,7 @@ class EfficientMiner extends Node {
   }
 
   perk(level) {
-    const val = round(level * 3, 2);
+    const val = floor(level * 3);
     return [`§7Grants §e+${val} ${SYMBOLS.mining_spread} Mining Spread§7.`];
   }
 }
@@ -1996,7 +1996,7 @@ const nodeClasses = {
   mining_fortune_2: FortunateMineman,
   // HOTM 6
   anomalous_desire: AnomalousDesire,
-  blockhead: BlockHead,
+  blockhead: Blockhead,
   subterranean_fisher: SubterraneanFisher,
   keep_it_cool: KeepItCool,
   lonesome_miner: LonesomeMiner,

@@ -104,7 +104,12 @@ async function getForge(userProfile) {
           forgeTime *= constants.QUICK_FORGE_MULTIPLIER[quickForge];
         }
 
-        forgeItem.name = item.id == "PET" ? "[Lvl 1] Ammonite" : dbObject ? dbObject.name : item.id;
+        if (item.id == "BEJEWELED_COLLAR") {
+          forgeItem.name = helper.titleCase(item.id.replace("_", " "));
+        } else {
+          forgeItem.name =
+            item.type == "PETS" ? "[Lvl 1] " + helper.titleCase(item.id) : dbObject ? dbObject.name : item.id;
+        }
 
         const timeFinished = item.startTime + forgeTime;
         forgeItem.timeFinished = timeFinished;

@@ -1,7 +1,0 @@
-{
-    "parent": "item/handheld",
-    "textures": {
-        "layer0": "./flaming_sword",
-        "layer1": "./flaming_sword_flames"
-    }
-}
