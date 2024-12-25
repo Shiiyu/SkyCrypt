@@ -112,6 +112,9 @@ class Pet {
         case "mining_fortune":
           list.push(`§7Mining Fortune: ${formatStat(newStats[stat])}`);
           break;
+        case "ore_fortune":
+          list.push(`§7Ore Fortune: ${formatStat(newStats[stat])}`);
+          break;
         case "farming_fortune":
           list.push(`§7Farming Fortune: ${formatStat(newStats[stat])}`);
           break;
@@ -3773,8 +3776,8 @@ class Spinosaurus extends Pet {
 class Goblin extends Pet {
   get stats() {
     return {
-      speed: 0.2 * this.level,
-      crit_chance: 0.1 * this.level,
+      magic_find: 0.07 * this.level,
+      ore_fortune: 1 * this.level,
     };
   }
 
@@ -3785,11 +3788,11 @@ class Goblin extends Pet {
   }
 
   get first() {
-    const mult = getValue(this.rarity, { legendary: 0.5 });
+    const mult = getValue(this.rarity, { legendary: 2.5 });
 
     return {
-      name: "§6Pickpocket",
-      desc: [`§7Increases the coins obtained from goblin coin bags by §a${round(this.level * mult, 1)}%§7.`],
+      name: "§6Grunt Work",
+      desc: [`§7Gain §6+${round(this.level * mult, 1)} ${SYMBOLS.mining_speed} Mining Speed§7 when mining §6Ores§7.`],
     };
   }
 
@@ -3797,8 +3800,10 @@ class Goblin extends Pet {
     const mult = getValue(this.rarity, { legendary: 1 });
 
     return {
-      name: "§6Offensive Odor",
-      desc: [`§7The Kings scent potion effect lasts §a${round(this.level * mult, 1)}% §7longer on you.`],
+      name: "§6Fetid Thief",
+      desc: [
+        `§7Gain §e+${round(this.level * mult, 1)} ${SYMBOLS.mining_spread} Mining Spread §7while in the §aMines of Divan§7.`,
+      ],
     };
   }
 
