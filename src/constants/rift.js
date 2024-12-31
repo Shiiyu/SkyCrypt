@@ -23,6 +23,9 @@ export const RIFT_EYES = [
     name: "The Prince",
     texture: "f26bde45049c7b7d34605d806a06829b6f955b856a5991fd33e7eabce44c0834",
   },
+  {
+    name: "The 7th Sin",
+    texture: "17db1923d03c4ef4e9f6e872c5a6ad2578b1aff2b281fbc3ffa7466c825fb9",
 ];
 
 export const RIFT_TIMECHARMS = [
