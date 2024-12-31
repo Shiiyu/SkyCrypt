@@ -68,6 +68,12 @@ export const RIFT_TIMECHARMS = [
     id: 152,
     damage: 0,
   },
+  {
+    name: "Celestial Timecharm",
+    type: "celestial",
+    id: 22,
+    damage: 0,
+  }
 ];
 
 export const RIFT_ENIGMA_SOULS = 42;
