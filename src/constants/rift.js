@@ -74,7 +74,7 @@ export const RIFT_TIMECHARMS = [
   },
   {
     name: "Celestial Timecharm",
-    type: "mountaintop",
+    type: "mountain",
     id: 22,
     damage: 0,
   },
