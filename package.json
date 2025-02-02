@@ -10,7 +10,7 @@
     "pnpm": ">=7",
     "yarn": "forbidden, use pnpm"
   },
-  "packageManager": "pnpm@7.27.0",
+  "packageManager": "pnpm@9.15.5",
   "scripts": {
     "start": "node index",
     "dev": "pnpm i && concurrently -r \"pnpm nodemon\" \"pnpm scss:watch\" \"pnpm rollup:watch\"",
